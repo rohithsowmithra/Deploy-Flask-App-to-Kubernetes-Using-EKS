@@ -1,0 +1,183 @@
+{
+	"info": {
+		"_postman_id": "b9c3bfee-b35d-4da3-baf4-13abb320e6db",
+		"name": "eks-deployment",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "HEALTH CHECK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "76946e04-fc7f-4f1e-8da5-f645831b08e3",
+						"exec": [
+							"pm.test(\"check if response is healthy\", function () {",
+							"    var resp = pm.response.text();",
+							"    pm.expect(resp).to.eql('\"Healthy\"\\n');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{HOST}}/",
+					"protocol": "http",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "45ef92b8-e337-4c60-94f5-67b629f9514f",
+						"exec": [
+							"pm.test(\"check if token is returned\", function () {",
+							"    var resp = pm.response.json();",
+							"    pm.expect(resp).to.have.any.key('token');",
+							"});",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"pm.collectionVariables.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\":\"testme@test.com\",\n\t\"password\":\"testme\"\n}"
+				},
+				"url": {
+					"raw": "http://{{HOST}}/auth",
+					"protocol": "http",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DECODE JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8530ae14-7130-4750-9fa0-df918aad5464",
+						"exec": [
+							"pm.test(\"check if token is decoded\", function () {",
+							"    var resp = pm.response.json();",
+							"    pm.expect(resp).to.have.any.key('email');",
+							"\tpm.expect(resp).to.have.any.key('exp');",
+							"\tpm.expect(resp).to.have.any.key('nbf');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "%7B%7Btoken%7D%7D",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://{{HOST}}/contents",
+					"protocol": "http",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"contents"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1fe7693e-2201-47b9-9862-a71ad7aad881",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "cc268ad4-41a9-4a2d-a404-30f04fb86556",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "26ec9c35-caa3-4c14-a562-bd2153c03e6c",
+			"key": "HOST",
+			"value": "a3ffd461b2e754c6b97445e1d765a1e6-1240368979.ap-south-1.elb.amazonaws.com"
+		},
+		{
+			"id": "10e49fc5-98c4-4a9f-88c5-0953d75bc404",
+			"value": ""
+		},
+		{
+			"id": "7d13cc0f-f8cc-4afe-8cd7-74cb332aafeb",
+			"key": "token",
+			"value": ""
+		}
+	],
+	"protocolProfileBehavior": {}
+}
